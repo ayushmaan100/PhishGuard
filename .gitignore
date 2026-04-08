@@ -1,2 +1,6 @@
-./phishguard/.env
-./assets
+node_modules/
+.env
+__pycache__/
+*.pyc
+venv/
+.DS_Store

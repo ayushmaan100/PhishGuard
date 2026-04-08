@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard",
+  "version": "1.0.0",
+  "description": "Real-time phishing detection with multi-layer analysis",
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "tabs",
+    "scripting",
+    "declarativeNetRequest",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "content/content-script.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    },
+    "default_title": "PhishGuard \u2014 Checking..."
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "interstitial/interstitial.html",
+        "onboarding/onboarding.html",
+        "settings/settings.html",
+        "assets/icons/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  }
+}

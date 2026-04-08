@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard Warning</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --danger:     #ef4444;
+      --danger-dim: #7f1d1d;
+      --danger-bg:  #0f0505;
+      --high-risk:  #f97316;
+      --hr-dim:     #7c2d12;
+      --hr-bg:      #0f0800;
+      --text:       #f1f5f9;
+      --text-muted: #94a3b8;
+      --border:     #1e2535;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: #09090f;
+      color: var(--text);
+      padding: 24px;
+    }
+
+    /* Dynamic background based on verdict */
+    body.dangerous  { background: radial-gradient(ellipse at 50% 0%, #1a0505 0%, #09090f 60%); }
+    body.high-risk  { background: radial-gradient(ellipse at 50% 0%, #1a0800 0%, #09090f 60%); }
+
+    .container {
+      max-width: 560px;
+      width: 100%;
+      animation: slideUp 0.3s ease;
+    }
+
+    /* ── Icon ─────────────────────────────────────────────────────────────── */
+    .icon-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .icon-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .icon-ring::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      opacity: 0.2;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    body.dangerous  .icon-ring { background: rgba(239,68,68,0.15); color: var(--danger); }
+    body.dangerous  .icon-ring::before { background: var(--danger); }
+    body.high-risk  .icon-ring { background: rgba(249,115,22,0.15); color: var(--high-risk); }
+    body.high-risk  .icon-ring::before { background: var(--high-risk); }
+
+    .icon-ring svg { width: 38px; height: 38px; }
+
+    /* ── Heading ──────────────────────────────────────────────────────────── */
+    .heading {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .heading-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    body.dangerous .heading-label { color: var(--danger); }
+    body.high-risk .heading-label { color: var(--high-risk); }
+
+    .heading-title {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .heading-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── URL Display ──────────────────────────────────────────────────────── */
+    .url-block {
+      margin: 20px 0;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .url-icon { width: 16px; height: 16px; color: #64748b; flex-shrink: 0; }
+
+    .url-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* ── Reasons ──────────────────────────────────────────────────────────── */
+    .reasons {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+    }
+
+    .reasons-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 10px;
+    }
+
+    .reasons-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .reasons-list li {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    .reason-bullet {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    body.dangerous .reason-bullet { background: rgba(239,68,68,0.15); color: var(--danger); }
+    body.high-risk .reason-bullet { background: rgba(249,115,22,0.15); color: var(--high-risk); }
+
+    .reason-bullet svg { width: 9px; height: 9px; }
+
+    /* ── Actions ──────────────────────────────────────────────────────────── */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-back {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    body.dangerous .btn-back { background: var(--danger); color: white; }
+    body.dangerous .btn-back:hover { background: #dc2626; }
+    body.high-risk .btn-back { background: var(--high-risk); color: white; }
+    body.high-risk .btn-back:hover { background: #ea6e0c; }
+
+    /* ── Proceed anyway (requires typing "proceed") ────────────────────────── */
+    .proceed-section {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .proceed-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .proceed-label strong { color: #94a3b8; }
+
+    .proceed-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .proceed-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .proceed-input:focus { border-color: #334155; }
+    .proceed-input::placeholder { color: #334155; }
+
+    .btn-proceed {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: #64748b;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      cursor: not-allowed;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-proceed.enabled {
+      border-color: #475569;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .btn-proceed.enabled:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    /* ── PhishGuard Attribution ────────────────────────────────────────────── */
+    .attribution {
+      text-align: center;
+      margin-top: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #334155;
+    }
+
+    /* ── Animations ────────────────────────────────────────────────────────── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);    opacity: 0.15; }
+      50%       { transform: scale(1.15); opacity: 0.25; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="icon-wrapper">
+      <div class="icon-ring">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                fill="currentColor" opacity="0.2"/>
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 7v5M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="heading">
+      <div class="heading-label" id="verdict-label">Phishing site detected</div>
+      <h1 class="heading-title">This site may be trying to steal your information</h1>
+      <p class="heading-subtitle">
+        PhishGuard detected multiple indicators that this site is impersonating a trusted service.
+        Do not enter any passwords or personal information.
+      </p>
+    </div>
+
+    <div class="url-block">
+      <svg class="url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01" stroke-linecap="round"/>
+      </svg>
+      <div class="url-text" id="blocked-url">Loading...</div>
+    </div>
+
+    <div class="reasons" id="reasons-block" style="display:none">
+      <div class="reasons-label">Detection signals</div>
+      <ul class="reasons-list" id="reasons-list"></ul>
+    </div>
+
+    <div class="actions">
+      <button class="btn-back" id="btn-back">
+        ← Go back to safety
+      </button>
+
+      <div class="proceed-section">
+        <div class="proceed-label">
+          If you understand the risk and wish to proceed anyway,
+          type <strong>"proceed"</strong> below:
+        </div>
+        <div class="proceed-input-row">
+          <input
+            type="text"
+            class="proceed-input"
+            id="proceed-input"
+            placeholder="Type proceed to continue"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <button class="btn-proceed" id="btn-proceed" disabled>
+            Continue anyway
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="attribution">PhishGuard · Real-time phishing protection</div>
+
+  </div>
+
+  <script>
+  ;(async function () {
+    // Get tabId from URL params
+    const params = new URLSearchParams(location.search)
+    const tabId  = parseInt(params.get('tabId'), 10)
+
+    // Retrieve stored result
+    let blockedData = null
+    try {
+      const key = `interstitial:${tabId}`
+      const stored = await chrome.storage.session.get(key)
+      blockedData = stored[key]
+    } catch (err) {
+      console.error('[PhishGuard Interstitial] Failed to load data:', err)
+    }
+
+    const verdict = blockedData?.result?.verdict || 'HIGH_RISK'
+    const url     = blockedData?.url || 'Unknown URL'
+    const reasons = blockedData?.result?.reasons || []
+
+    // Apply verdict class to body
+    document.body.classList.add(verdict === 'DANGEROUS' ? 'dangerous' : 'high-risk')
+
+    // Update verdict label
+    document.getElementById('verdict-label').textContent =
+      verdict === 'DANGEROUS' ? 'Phishing site detected' : 'High risk site detected'
+
+    // Show blocked URL
+    document.getElementById('blocked-url').textContent = url
+
+    // Show reasons if available
+    if (reasons.length > 0) {
+      const block = document.getElementById('reasons-block')
+      const list  = document.getElementById('reasons-list')
+      reasons.forEach(reason => {
+        const li = document.createElement('li')
+        li.innerHTML = `
+          <div class="reason-bullet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M12 5v7M12 16h.01" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>${reason}</span>
+        `
+        list.appendChild(li)
+      })
+      block.style.display = 'block'
+    }
+
+    // Back button — navigate to new tab page (safe)
+    document.getElementById('btn-back').addEventListener('click', () => {
+      chrome.tabs.update(tabId, { url: 'chrome://newtab/' })
+    })
+
+    // Proceed input — enable button only when user types "proceed"
+    const proceedInput  = document.getElementById('proceed-input')
+    const proceedButton = document.getElementById('btn-proceed')
+
+    proceedInput.addEventListener('input', () => {
+      const ready = proceedInput.value.toLowerCase().trim() === 'proceed'
+      proceedButton.disabled = !ready
+      proceedButton.classList.toggle('enabled', ready)
+    })
+
+    proceedButton.addEventListener('click', () => {
+      if (proceedInput.value.toLowerCase().trim() !== 'proceed') return
+      // Navigate to the original URL despite the warning
+      chrome.tabs.update(tabId, { url: blockedData?.url })
+    })
+
+  })()
+  </script>
+
+</body>
+</html>

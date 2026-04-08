@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to PhishGuard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg:        #0a0d14;
+      --surface:   #111520;
+      --border:    #1e2535;
+      --border2:   #263044;
+      --text:      #e8eaf0;
+      --muted:     #64748b;
+      --safe:      #22c55e;
+      --warn:      #eab308;
+      --danger:    #ef4444;
+      --blue:      #60a5fa;
+      --blue-dim:  #1e3a5f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 64px;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      max-width: 560px;
+      margin-bottom: 56px;
+    }
+
+    .shield-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+    }
+
+    .shield-ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, transparent 70%);
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    .shield-wrap svg { width: 56px; height: 56px; color: var(--blue); position: relative; }
+
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #e8eaf0 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    /* ── How It Works ──────────────────────────────────────────────────── */
+    .section {
+      width: 100%;
+      max-width: 640px;
+      margin-bottom: 40px;
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding-left: 4px;
+    }
+
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .layer {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .layer:hover { border-color: var(--border2); }
+
+    .layer-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue-dim);
+      color: var(--blue);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .layer-body { flex: 1; }
+
+    .layer-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .layer-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tag-instant  { background: rgba(34,197,94,0.12);  color: #4ade80; }
+    .tag-fast     { background: rgba(96,165,250,0.12); color: #93c5fd; }
+    .tag-parallel { background: rgba(234,179,8,0.12);  color: #fbbf24; }
+
+    .layer-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Verdict Legend ────────────────────────────────────────────────── */
+    .verdicts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .verdict-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .verdict-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .verdict-body { flex: 1; }
+    .verdict-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .verdict-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+    /* ── Privacy ───────────────────────────────────────────────────────── */
+    .privacy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .privacy-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .privacy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .privacy-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--safe);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── CTA ───────────────────────────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue);
+      color: #0a0d14;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 32px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-primary:hover { background: #93c5fd; transform: translateY(-1px); }
+    .btn-primary:active { transform: none; }
+
+    .cta-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .cta-note a { color: var(--blue); text-decoration: none; }
+    .cta-note a:hover { text-decoration: underline; }
+
+    /* ── Footer ────────────────────────────────────────────────────────── */
+    .page-footer {
+      margin-top: 48px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #2a3347;
+      text-align: center;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50%       { transform: scale(1.1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="shield-wrap">
+      <div class="shield-ring"></div>
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+              fill="currentColor" opacity="0.15"/>
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+              stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="hero-eyebrow">Welcome to PhishGuard</div>
+    <h1 class="hero-title">Real-time phishing<br>protection, explained</h1>
+    <p class="hero-sub">
+      PhishGuard analyzes every site you visit across multiple layers —
+      before you interact with it. Here's exactly how it works.
+    </p>
+  </div>
+
+  <!-- How it works -->
+  <div class="section">
+    <div class="section-label">Detection layers</div>
+    <div class="layers">
+      <div class="layer">
+        <div class="layer-num">0</div>
+        <div class="layer-body">
+          <div class="layer-title">
+            Trusted site check
+            <span class="layer-tag tag-instant">Instant</span>
+          </div>
+          <div class="layer-desc">
+            The top 10,000 most-visited sites are pre-loaded. Google, Amazon, YouTube
+            — they skip all analysis and get an instant green badge.
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-num">1</div>
+        <div class="layer-body">
+          <div class="layer-title">
+            URL pattern analysis
+            <span class="layer-tag tag-instant">&lt;5ms</span>
+          </div>
+          <div class="layer-desc">
+            13 signals extracted from the URL itself — typosquatting (paypa1.com),
+            suspicious TLDs, IP addresses, @ tricks, random-looking domain names.
+            Shows a preliminary badge immediately.
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-num">2</div>
+        <div class="layer-body">
+          <div class="layer-title">
+            Google Safe Browsing
+            <span class="layer-tag tag-fast">~100ms</span>
+          </div>
+          <div class="layer-desc">
+            Checks against Google's database of known phishing and malware sites.
+            A hit here immediately shows a DANGEROUS warning, regardless of other signals.
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-num">3</div>
+        <div class="layer-body">
+          <div class="layer-title">
+            Domain intelligence
+            <span class="layer-tag tag-parallel">Parallel</span>
+          </div>
+          <div class="layer-desc">
+            Looks up domain registration age (RDAP), SSL certificate age
+            (Certificate Transparency), and site ranking (Tranco top lists).
+            Phishing domains are always new — this catches zero-day attacks.
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-num">4</div>
+        <div class="layer-body">
+          <div class="layer-title">
+            Page content analysis
+            <span class="layer-tag tag-parallel">Parallel</span>
+          </div>
+          <div class="layer-desc">
+            Analyzes the actual page: does the title claim to be PayPal?
+            Does a login form submit to a different domain? Does the favicon
+            load from the real brand's server? 8 DOM-level signals.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verdict legend -->
+  <div class="section">
+    <div class="section-label">What the badges mean</div>
+    <div class="verdicts">
+      <div class="verdict-item">
+        <div class="verdict-dot" style="background:#22c55e"></div>
+        <div class="verdict-body">
+          <div class="verdict-name" style="color:#22c55e">Safe</div>
+          <div class="verdict-desc">No threats detected. Browse normally.</div>
+        </div>
+      </div>
+      <div class="verdict-item">
+        <div class="verdict-dot" style="background:#eab308"></div>
+        <div class="verdict-body">
+          <div class="verdict-name" style="color:#eab308">Suspicious</div>
+          <div class="verdict-desc">Some unusual signals. Review with caution.</div>
+        </div>
+      </div>
+      <div class="verdict-item">
+        <div class="verdict-dot" style="background:#f97316"></div>
+        <div class="verdict-body">
+          <div class="verdict-name" style="color:#f97316">High Risk</div>
+          <div class="verdict-desc">Multiple phishing indicators. Do not enter credentials.</div>
+        </div>
+      </div>
+      <div class="verdict-item">
+        <div class="verdict-dot" style="background:#ef4444"></div>
+        <div class="verdict-body">
+          <div class="verdict-name" style="color:#ef4444">Dangerous</div>
+          <div class="verdict-desc">Confirmed or high-confidence phishing. Leave immediately.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy -->
+  <div class="section">
+    <div class="section-label">Privacy &amp; data</div>
+    <div class="privacy-card">
+      <div class="privacy-items">
+        <div class="privacy-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <span>URLs you visit are sent to Google Safe Browsing for blacklist checking.
+            Google's privacy policy applies. This is disclosed here and in our privacy policy.</span>
+        </div>
+        <div class="privacy-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <span>Domain age lookups send only the domain name (e.g., "evil.com"), never the full URL,
+            to RDAP and certificate transparency servers.</span>
+        </div>
+        <div class="privacy-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <span>Page content analysis (forms, title, favicon) happens entirely inside your browser.
+            This data never leaves your device.</span>
+        </div>
+        <div class="privacy-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <span>We never sell data. We never track which sites you visit for advertising.
+            Results are cached locally in your browser only.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <button class="btn-primary" id="btn-start">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Start browsing with protection
+    </button>
+    <p class="cta-note">
+      By using PhishGuard you agree to our
+      <a href="#" id="link-privacy">Privacy Policy</a>.
+      You can change settings anytime by clicking the extension icon.
+    </p>
+  </div>
+
+  <div class="page-footer">PhishGuard v0.1 · Built for real users, not demos</div>
+
+  <script>
+    document.getElementById('btn-start').addEventListener('click', () => {
+      // Mark onboarding as complete
+      chrome.storage.local.set({ onboardingComplete: true })
+      // Open a new tab and close this one
+      chrome.tabs.create({ url: 'https://google.com' })
+      window.close()
+    })
+    document.getElementById('link-privacy').addEventListener('click', (e) => {
+      e.preventDefault()
+      chrome.tabs.create({ url: 'https://phishguard.dev/privacy' })
+    })
+  </script>
+</body>
+</html>

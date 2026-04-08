@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard Settings</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:      #0a0d14;
+      --surface: #111520;
+      --surface2:#161c2a;
+      --border:  #1e2535;
+      --border2: #263044;
+      --text:    #e8eaf0;
+      --muted:   #64748b;
+      --blue:    #60a5fa;
+      --safe:    #22c55e;
+      --danger:  #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      padding: 32px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page { width: 100%; max-width: 580px; }
+
+    /* ── Header ────────────────────────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .page-header svg { width: 22px; height: 22px; color: var(--blue); }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .version-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* ── Sections ──────────────────────────────────────────────────────── */
+    .settings-section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    .settings-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row:hover { background: var(--surface2); }
+
+    .setting-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(96,165,250,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--blue);
+    }
+
+    .setting-icon svg { width: 17px; height: 17px; }
+
+    .setting-body { flex: 1; min-width: 0; }
+
+    .setting-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── Toggle ────────────────────────────────────────────────────────── */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--border2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--muted);
+      top: 3px;
+      left: 3px;
+      transition: all 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--safe);
+    }
+
+    .toggle input:checked + .toggle-track::after {
+      background: white;
+      left: 23px;
+    }
+
+    /* ── Sensitivity Slider ────────────────────────────────────────────── */
+    .sensitivity-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      background: var(--border2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--blue);
+    }
+
+    .slider-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--blue);
+      margin-left: 8px;
+    }
+
+    /* ── Whitelist ─────────────────────────────────────────────────────── */
+    .whitelist-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .whitelist-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .whitelist-input:focus { border-color: var(--blue); }
+    .whitelist-input::placeholder { color: var(--muted); }
+
+    .btn-add {
+      background: rgba(96,165,250,0.15);
+      border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 6px;
+      color: var(--blue);
+      padding: 8px 14px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .btn-add:hover { background: rgba(96,165,250,0.25); }
+
+    .whitelist-empty {
+      padding: 20px 18px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .whitelist-list {
+      list-style: none;
+    }
+
+    .whitelist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
+    .whitelist-item:last-child { border-bottom: none; }
+
+    .whitelist-domain { flex: 1; color: var(--text); }
+
+    .btn-remove {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      transition: color 0.15s;
+    }
+
+    .btn-remove:hover { color: var(--danger); }
+    .btn-remove svg { width: 14px; height: 14px; }
+
+    /* ── Danger zone ───────────────────────────────────────────────────── */
+    .btn-danger {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 6px;
+      color: var(--danger);
+      padding: 10px 16px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .btn-danger:hover { background: rgba(239,68,68,0.14); }
+
+    /* ── Status toast ──────────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+              fill="currentColor" opacity="0.15"/>
+        <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+              stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="page-title">PhishGuard Settings</div>
+      <div class="version-tag">v0.1</div>
+    </div>
+
+    <!-- Protection -->
+    <div class="settings-section">
+      <div class="section-title">Protection</div>
+      <div class="settings-card">
+        <div class="setting-row">
+          <div class="setting-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="setting-body">
+            <div class="setting-name">Real-time protection</div>
+            <div class="setting-desc">Analyze every site you visit across all detection layers</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-enabled" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            </svg>
+          </div>
+          <div class="setting-body">
+            <div class="setting-name">Show interstitial for high-risk sites</div>
+            <div class="setting-desc">Full-screen warning page for HIGH_RISK and DANGEROUS verdicts</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-interstitial" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+            </svg>
+          </div>
+          <div class="setting-body">
+            <div class="setting-name">Google Safe Browsing</div>
+            <div class="setting-desc">Check against Google's database of known threats (sends URLs to Google)</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-gsb" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensitivity -->
+    <div class="settings-section">
+      <div class="section-title">Sensitivity</div>
+      <div class="settings-card">
+        <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 0;">
+          <div style="display:flex; align-items:center; gap:14px; margin-bottom: 4px;">
+            <div class="setting-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20V10M18 20V4M6 20v-4"/>
+              </svg>
+            </div>
+            <div class="setting-body">
+              <div class="setting-name">
+                Warning threshold
+                <span class="slider-value" id="threshold-label">Standard</span>
+              </div>
+              <div class="setting-desc">
+                Higher sensitivity catches more threats but may show more warnings on legitimate sites
+              </div>
+            </div>
+          </div>
+          <div style="padding: 0 18px 16px 68px;">
+            <input type="range" id="sensitivity-slider" min="1" max="3" value="2" step="1" />
+            <div class="sensitivity-labels">
+              <span>Conservative</span>
+              <span>Standard</span>
+              <span>Aggressive</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trusted sites whitelist -->
+    <div class="settings-section">
+      <div class="section-title">Trusted sites</div>
+      <div class="settings-card">
+        <div class="whitelist-input-row">
+          <input
+            type="text"
+            class="whitelist-input"
+            id="whitelist-input"
+            placeholder="example.com"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="btn-add" id="btn-add-whitelist">Add site</button>
+        </div>
+        <div id="whitelist-container">
+          <div class="whitelist-empty" id="whitelist-empty">
+            No trusted sites added. Sites you mark as trusted will appear here.
+          </div>
+          <ul class="whitelist-list" id="whitelist-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache & data -->
+    <div class="settings-section">
+      <div class="section-title">Cache &amp; data</div>
+      <div class="settings-card">
+        <div class="setting-row">
+          <div class="setting-body">
+            <div class="setting-name">Clear detection cache</div>
+            <div class="setting-desc">
+              Removes cached domain intelligence results (24hr TTL).
+              Forces fresh lookups on next visit.
+            </div>
+          </div>
+          <button class="btn-danger" id="btn-clear-cache"
+                  style="width:auto; padding: 8px 14px; font-size:12px;">
+            Clear
+          </button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-body">
+            <div class="setting-name">Reset visit history</div>
+            <div class="setting-desc">
+              Clears your browsing history used to provide trust bonuses to frequently visited sites.
+            </div>
+          </div>
+          <button class="btn-danger" id="btn-clear-visits"
+                  style="width:auto; padding: 8px 14px; font-size:12px;">
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="settings-section">
+      <div class="section-title">About</div>
+      <div class="settings-card">
+        <div class="setting-row">
+          <div class="setting-body">
+            <div class="setting-name">Privacy Policy</div>
+            <div class="setting-desc">How we handle your data and what we send to external services</div>
+          </div>
+          <button class="btn-add" id="btn-privacy" style="font-size:11px;">View →</button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-body">
+            <div class="setting-name">View onboarding guide</div>
+            <div class="setting-desc">Revisit the explanation of how PhishGuard works</div>
+          </div>
+          <button class="btn-add" id="btn-onboarding" style="font-size:11px;">Open →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  ;(async function () {
+    'use strict'
+
+    // ── Load saved settings ──────────────────────────────────────────────
+    const prefs = await chrome.storage.local.get([
+      'enabled', 'showInterstitial', 'gsbEnabled', 'sensitivity', 'whitelist'
+    ])
+
+    const enabled        = prefs.enabled        !== false  // default true
+    const showInterstit  = prefs.showInterstitial !== false
+    const gsbEnabled     = prefs.gsbEnabled      !== false
+    const sensitivity    = prefs.sensitivity      || 2
+    const whitelist      = prefs.whitelist        || []
+
+    document.getElementById('toggle-enabled').checked      = enabled
+    document.getElementById('toggle-interstitial').checked = showInterstit
+    document.getElementById('toggle-gsb').checked          = gsbEnabled
+    document.getElementById('sensitivity-slider').value    = sensitivity
+    updateThresholdLabel(sensitivity)
+
+    renderWhitelist(whitelist)
+
+    // ── Toggle: enabled ──────────────────────────────────────────────────
+    document.getElementById('toggle-enabled').addEventListener('change', async (e) => {
+      await chrome.storage.local.set({ enabled: e.target.checked })
+      // Notify service worker
+      chrome.runtime.sendMessage({ type: 'SETTINGS_CHANGED', key: 'enabled', value: e.target.checked })
+      showToast(e.target.checked ? 'Protection enabled' : 'Protection paused')
+    })
+
+    document.getElementById('toggle-interstitial').addEventListener('change', async (e) => {
+      await chrome.storage.local.set({ showInterstitial: e.target.checked })
+      showToast('Setting saved')
+    })
+
+    document.getElementById('toggle-gsb').addEventListener('change', async (e) => {
+      await chrome.storage.local.set({ gsbEnabled: e.target.checked })
+      showToast('Setting saved')
+    })
+
+    // ── Sensitivity slider ────────────────────────────────────────────────
+    document.getElementById('sensitivity-slider').addEventListener('input', async (e) => {
+      const val = parseInt(e.target.value)
+      updateThresholdLabel(val)
+      await chrome.storage.local.set({ sensitivity: val })
+    })
+
+    function updateThresholdLabel(val) {
+      const labels = { 1: 'Conservative', 2: 'Standard', 3: 'Aggressive' }
+      document.getElementById('threshold-label').textContent = labels[val] || 'Standard'
+    }
+
+    // ── Whitelist management ──────────────────────────────────────────────
+    document.getElementById('btn-add-whitelist').addEventListener('click', async () => {
+      const input  = document.getElementById('whitelist-input')
+      const domain = sanitizeDomain(input.value)
+      if (!domain) { showToast('Enter a valid domain (e.g. example.com)'); return }
+
+      const current = (await chrome.storage.local.get('whitelist')).whitelist || []
+      if (current.includes(domain)) { showToast('Already in your trusted list'); return }
+
+      const updated = [...current, domain].sort()
+      await chrome.storage.local.set({ whitelist: updated })
+      // Also set the cache key used by store.js
+      await chrome.storage.local.set({ [`cache:whitelist:${domain}`]: { value: true, expiresAt: Infinity, cachedAt: Date.now() } })
+      input.value = ''
+      renderWhitelist(updated)
+      showToast(`${domain} added to trusted sites`)
+    })
+
+    document.getElementById('whitelist-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('btn-add-whitelist').click()
+    })
+
+    function renderWhitelist(domains) {
+      const list  = document.getElementById('whitelist-list')
+      const empty = document.getElementById('whitelist-empty')
+      list.innerHTML = ''
+
+      if (domains.length === 0) {
+        empty.style.display = 'block'
+        return
+      }
+
+      empty.style.display = 'none'
+      domains.forEach(domain => {
+        const li = document.createElement('li')
+        li.className = 'whitelist-item'
+        li.innerHTML = `
+          <span class="whitelist-domain">${escapeHtml(domain)}</span>
+          <button class="btn-remove" data-domain="${escapeHtml(domain)}" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
+            </svg>
+          </button>
+        `
+        li.querySelector('.btn-remove').addEventListener('click', async () => {
+          const current = (await chrome.storage.local.get('whitelist')).whitelist || []
+          const updated = current.filter(d => d !== domain)
+          await chrome.storage.local.set({ whitelist: updated })
+          await chrome.storage.local.remove(`cache:whitelist:${domain}`)
+          renderWhitelist(updated)
+          showToast(`${domain} removed`)
+        })
+        list.appendChild(li)
+      })
+    }
+
+    function sanitizeDomain(raw) {
+      let domain = (raw || '').trim().toLowerCase()
+      domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+      if (!domain || !domain.includes('.')) return null
+      if (domain.length > 253) return null
+      return domain
+    }
+
+    // ── Cache management ──────────────────────────────────────────────────
+    document.getElementById('btn-clear-cache').addEventListener('click', async () => {
+      const all  = await chrome.storage.local.get(null)
+      const keys = Object.keys(all).filter(k =>
+        k.startsWith('cache:gsb:') ||
+        k.startsWith('cache:domain_intel:') ||
+        k.startsWith('cache:domain_age:')
+      )
+      if (keys.length > 0) await chrome.storage.local.remove(keys)
+      showToast(`Cache cleared (${keys.length} entries)`)
+    })
+
+    document.getElementById('btn-clear-visits').addEventListener('click', async () => {
+      const all  = await chrome.storage.local.get(null)
+      const keys = Object.keys(all).filter(k => k.startsWith('cache:visits:'))
+      if (keys.length > 0) await chrome.storage.local.remove(keys)
+      showToast(`Visit history reset (${keys.length} entries)`)
+    })
+
+    // ── Navigation ────────────────────────────────────────────────────────
+    document.getElementById('btn-privacy').addEventListener('click', () => {
+      chrome.tabs.create({ url: 'https://phishguard.dev/privacy' })
+    })
+    document.getElementById('btn-onboarding').addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('onboarding/onboarding.html') })
+    })
+
+    // ── Toast ─────────────────────────────────────────────────────────────
+    let toastTimer = null
+    function showToast(msg) {
+      const el = document.getElementById('toast')
+      el.textContent = msg
+      el.classList.add('visible')
+      clearTimeout(toastTimer)
+      toastTimer = setTimeout(() => el.classList.remove('visible'), 2200)
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+    }
+
+  })()
+  </script>
+</body>
+</html>

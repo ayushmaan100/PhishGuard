@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-text">PhishGuard</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btn-settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- LOADING -->
+      <div id="state-loading" class="verdict-card state-loading" style="display:none">
+        <div class="verdict-icon"><div class="spinner"></div></div>
+        <div class="verdict-content">
+          <div class="verdict-title">Analyzing…</div>
+          <div class="verdict-url" id="loading-url"></div>
+        </div>
+      </div>
+
+      <!-- SAFE -->
+      <div id="state-safe" class="verdict-card state-safe" style="display:none">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  fill="currentColor" opacity="0.15"/>
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">Site looks safe</div>
+          <div class="verdict-url" id="safe-url"></div>
+        </div>
+      </div>
+
+      <!-- SUSPICIOUS -->
+      <div id="state-suspicious" class="verdict-card state-suspicious" style="display:none">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  fill="currentColor" opacity="0.15"/>
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">Suspicious site</div>
+          <div class="verdict-url" id="suspicious-url"></div>
+        </div>
+        <div class="verdict-score" id="suspicious-score"></div>
+      </div>
+
+      <!-- HIGH RISK -->
+      <div id="state-high-risk" class="verdict-card state-high-risk" style="display:none">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  fill="currentColor" opacity="0.2"/>
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5M12 16h.01" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">High risk detected</div>
+          <div class="verdict-url" id="high-risk-url"></div>
+        </div>
+        <div class="verdict-score" id="high-risk-score"></div>
+      </div>
+
+      <!-- DANGEROUS -->
+      <div id="state-dangerous" class="verdict-card state-dangerous" style="display:none">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  fill="currentColor" opacity="0.25"/>
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5M12 16h.01" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">Phishing site detected</div>
+          <div class="verdict-url" id="dangerous-url"></div>
+        </div>
+        <div class="verdict-score" id="dangerous-score"></div>
+      </div>
+
+      <!-- EMPTY (first install) -->
+      <div id="state-empty" class="verdict-card state-safe">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">PhishGuard is active</div>
+          <div class="verdict-subtitle">Navigate to a site to begin protection</div>
+        </div>
+      </div>
+
+      <!-- DISABLED -->
+      <div id="state-disabled" class="verdict-card state-disabled" style="display:none">
+        <div class="verdict-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                  opacity="0.4"/>
+            <path d="M4.93 4.93l14.14 14.14" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="verdict-content">
+          <div class="verdict-title">Protection is paused</div>
+          <div class="verdict-subtitle">Re-enable in settings</div>
+        </div>
+        <button class="btn-inline" id="btn-enable">Enable</button>
+      </div>
+
+      <!-- Score bar (shown for non-safe, non-empty verdicts) -->
+      <div id="score-bar-section" style="display:none">
+        <div class="score-bar-wrap">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="score-bar-fill"></div>
+          </div>
+          <div class="score-bar-label">
+            <span class="score-bar-text">Risk score</span>
+            <span class="score-bar-value" id="score-bar-value"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reasons -->
+      <div id="reasons-section" class="reasons-section" style="display:none">
+        <div class="reasons-label">Why we flagged this</div>
+        <ul class="reasons-list" id="reasons-list"></ul>
+      </div>
+
+      <!-- Preliminary banner -->
+      <div id="preliminary-banner" class="preliminary-banner" style="display:none">
+        <div class="mini-spinner"></div>
+        <span>Deep analysis running…</span>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <button class="btn btn-ghost" id="btn-rescan" title="Re-analyze this page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Re-scan
+      </button>
+
+      <button class="btn btn-ghost" id="btn-whitelist" title="Mark this site as trusted">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 8v8M8 12h8" stroke-linecap="round"/>
+        </svg>
+        Trust site
+      </button>
+
+      <button class="btn btn-ghost" id="btn-report" title="Report a false positive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="4" y1="22" x2="4" y2="15" stroke-linecap="round"/>
+        </svg>
+        Report
+      </button>
+    </footer>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

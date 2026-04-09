@@ -1,0 +1,2 @@
+web: node backend/server.js
+ml: python3 backend/ml/ml_service.py

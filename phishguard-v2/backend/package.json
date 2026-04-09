@@ -1,0 +1,29 @@
+{
+  "name": "phishguard-api",
+  "version": "2.0.0",
+  "description": "PhishGuard V2 backend API — ML inference + domain intelligence",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start":   "node backend/server.js",
+    "dev":     "node --watch backend/server.js",
+    "ml":      "python3 backend/ml/ml_service.py",
+    "test":    "node --experimental-vm-modules backend/tests/run_tests.js",
+    "build":   "echo 'No build step required'",
+    "retrain": "python3 ml/scripts/train.py"
+  },
+  "dependencies": {
+    "express":            "^4.19.2",
+    "cors":               "^2.8.5",
+    "helmet":             "^7.1.0",
+    "express-rate-limit": "^7.3.1"
+  },
+  "devDependencies": {
+    "redis": "^4.6.14"
+  },
+  "optionalDependencies": {
+    "redis": "^4.6.14"
+  }
+}
